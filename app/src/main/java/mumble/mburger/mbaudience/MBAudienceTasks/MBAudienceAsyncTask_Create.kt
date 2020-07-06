@@ -57,22 +57,25 @@ internal class MBAudienceAsyncTask_Create : AsyncTask<Void, Void, Void> {
     }
 
     override fun doInBackground(vararg params: Void?): Void? {
-        putValuesAndCall()
-        if (MBApiManagerUtils.hasMapOkResults(map, false)) {
-            result = MBApiManagerConfig.RESULT_OK
-        } else {
-            if (map!!.containsKey(MBApiManagerConfig.AM_RESULT)) {
-                result = map!![MBApiManagerConfig.AM_RESULT] as Int
+        if (weakContext.get() != null) {
+            putValuesAndCall()
+            if (MBApiManagerUtils.hasMapOkResults(map, false)) {
+                result = MBApiManagerConfig.RESULT_OK
             } else {
-                result = MBApiManagerConfig.COMMON_INTERNAL_ERROR
-            }
+                result = if (map!!.containsKey(MBApiManagerConfig.AM_RESULT)) {
+                    map!![MBApiManagerConfig.AM_RESULT] as Int
+                } else {
+                    MBApiManagerConfig.COMMON_INTERNAL_ERROR
+                }
 
-            if (map!!.containsKey(MBApiManagerConfig.AM_ERROR)) {
-                error = map!![MBApiManagerConfig.AM_ERROR] as String
-            } else {
-                error = MBCommonMethods.getErrorMessageFromResult(weakContext.get()!!, result)
+                error = if (map!!.containsKey(MBApiManagerConfig.AM_ERROR)) {
+                    map!![MBApiManagerConfig.AM_ERROR] as String
+                } else {
+                    MBCommonMethods.getErrorMessageFromResult(weakContext.get()!!, result)
+                }
             }
         }
+
         return null
     }
 
@@ -80,16 +83,17 @@ internal class MBAudienceAsyncTask_Create : AsyncTask<Void, Void, Void> {
     }
 
     fun putValuesAndCall() {
-        val app_version = weakContext.get()!!.packageManager.getPackageInfo(weakContext.get()!!.packageName, 0).versionCode.toString()
+        val app_version = weakContext.get()!!.packageManager
+                .getPackageInfo(weakContext.get()!!.packageName, 0).versionCode.toString()
 
         val values = ContentValues()
         values.put("device_id", MBCommonMethods.getDeviceId(weakContext.get()!!))
         values.put("platform", "android")
         values.put("push_enabled", push_enabled.toString())
-        values.put("location_enabled", isLocationPermissionTaken().toString())
+        values.put("location_enabled", MBAudienceManager.isLocationPermissionTaken(weakContext.get()!!).toString())
         values.put("locale", Locale.getDefault().language)
         values.put("app_version", app_version)
-        values.put("sessions", MBAudienceManager.getSessions(weakContext.get()!!))
+        values.put("sessions", MBAudienceManager.getSessions(weakContext.get()!!).toString())
         values.put("sessions_time", sessions_time.toString())
         values.put("last_session", MBAudienceManager.getLastSession(weakContext.get()!!).toString())
 
@@ -114,11 +118,6 @@ internal class MBAudienceAsyncTask_Create : AsyncTask<Void, Void, Void> {
                 MBApiManagerConfig.MODE_POST, false, false)
     }
 
-    fun isLocationPermissionTaken(): Boolean {
-        return (ContextCompat.checkSelfPermission(weakContext.get()!!, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
-                (ContextCompat.checkSelfPermission(weakContext.get()!!, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-    }
-
     fun formatTags(): String {
         val jArr = JSONArray()
         for (tag in tags!!) {
@@ -130,5 +129,4 @@ internal class MBAudienceAsyncTask_Create : AsyncTask<Void, Void, Void> {
 
         return jArr.toString()
     }
-
 }

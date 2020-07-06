@@ -20,5 +20,6 @@ class MBAudienceLifecycleListener(var context: Context) : LifecycleObserver {
         var diff = System.currentTimeMillis() - startTime
         val sessionTime = TimeUnit.MILLISECONDS.toSeconds(diff)
         MBAudience.setSessionTime(context, sessionTime)
+        MBAudience.stopLocationUpdates()
     }
 }
