@@ -21,7 +21,7 @@ implementation 'mumble.mburger:android_kt:0.5.0'
 Lastly add `MBAudience` library:
 
 ```
-implementation 'mumble.mburger:mbaudience-android:0.2.4'
+implementation 'mumble.mburger:mbaudience-android:0.2.5'
 ```
 
 
