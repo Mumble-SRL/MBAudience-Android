@@ -17,7 +17,7 @@ ext {
     siteUrl = 'https://github.com/Mumble-SRL/MBMessages-Android'
     gitUrl = 'https://github.com/Mumble-SRL/MBMessages-Android.git'
 
-    libraryVersion = '0.2.4'
+    libraryVersion = '0.2.5'
 
     developerId = 'MBurger-Android'
     developerName = 'Mumble'
@@ -34,14 +34,14 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 13
-        versionName "0.2.4"
+        versionCode 14
+        versionName "0.2.5"
         vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
