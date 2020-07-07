@@ -1,18 +1,13 @@
 package mumble.mburger.mbaudience.MBAudienceTasks
 
-import android.Manifest
 import android.content.ContentValues
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.AsyncTask
-import androidx.core.content.ContextCompat
 import mumble.mburger.mbaudience.MBAudienceConstants.MBAudienceConstants
 import mumble.mburger.sdk.kt.Common.MBApiManager.MBAPIManager4
 import mumble.mburger.sdk.kt.Common.MBApiManager.MBApiManagerConfig
 import mumble.mburger.sdk.kt.Common.MBApiManager.MBApiManagerUtils
 import mumble.mburger.sdk.kt.Common.MBCommonMethods
-import org.json.JSONArray
-import org.json.JSONObject
 import java.lang.ref.WeakReference
 
 /**
