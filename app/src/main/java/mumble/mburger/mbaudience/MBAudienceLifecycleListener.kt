@@ -17,7 +17,7 @@ class MBAudienceLifecycleListener(var context: Context) : LifecycleObserver {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onMoveToBackground() {
-        var diff = System.currentTimeMillis() - startTime
+        val diff = System.currentTimeMillis() - startTime
         val sessionTime = TimeUnit.MILLISECONDS.toSeconds(diff)
         MBAudience.setSessionTime(context, sessionTime)
         MBAudience.stopLocationUpdates()

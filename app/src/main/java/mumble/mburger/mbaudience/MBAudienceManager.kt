@@ -110,13 +110,13 @@ internal class MBAudienceManager {
         }
 
         /**INTERNAL SAVES & UTILS**/
-        internal fun saveData(context: Context) {
+        private fun saveData(context: Context) {
             MBCommonMethods.getSharedPreferencesEditor(context)!!.putString("mobile_user_id", mobile_user_id).apply()
             MBCommonMethods.getSharedPreferencesEditor(context)!!.putString("custom_id", custom_id).apply()
             MBCommonMethods.getSharedPreferencesEditor(context)!!.putString("userTags", jsonizeTags(userTags)).apply()
         }
 
-        internal fun jsonizeTags(userTags: ArrayList<MBTag>?): String? {
+        private fun jsonizeTags(userTags: ArrayList<MBTag>?): String? {
             if (userTags != null) {
                 val jArr = JSONArray()
                 for (tag in userTags) {
@@ -132,7 +132,7 @@ internal class MBAudienceManager {
             return null
         }
 
-        internal fun deJsonizeTags(context: Context): ArrayList<MBTag>? {
+        private fun deJsonizeTags(context: Context): ArrayList<MBTag>? {
             val sUserTags = MBCommonMethods.getSharedPreferences(context)!!.getString("userTags", null)
             if (sUserTags != null) {
                 val tags = ArrayList<MBTag>()

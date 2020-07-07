@@ -1,5 +1,6 @@
 package mumble.mburger.mbaudience
 
-public interface MBAudiencePluginInitialized {
+/**Listener for plugin initialization**/
+interface MBAudiencePluginInitialized {
     fun onMBAudienceInitialized()
 }

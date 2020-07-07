@@ -22,6 +22,9 @@ class MBAudience : MBPlugin() {
 
     var initListener: MBAudiencePluginInitialized? = null
 
+    /**
+     * Initialization of the plugin
+     */
     override fun init(context: Context) {
         super.init(context)
         MBAudienceManager.init(context)
@@ -34,6 +37,9 @@ class MBAudience : MBPlugin() {
         initListener?.onMBAudienceInitialized()
     }
 
+    /**
+     * First start of the plugin
+     */
     override fun doStart(activity: FragmentActivity) {
         super.doStart(activity)
         if (initialized) {
@@ -45,51 +51,84 @@ class MBAudience : MBPlugin() {
         var locationClient: FusedLocationProviderClient? = null
         var locationCallback: LocationCallback? = null
 
+        /**
+         * Set the start date of the last session
+         */
         internal fun setLastSession(context: Context) {
             MBAudienceManager.setLastSession(context)
         }
 
+        /**
+         * Set if user has push notification enabled
+         */
         fun setPushEnabled(context: Context, push_enabled: Boolean) {
             MBAudienceManager.push_enabled = push_enabled
             MBAudienceManager.sendData(context)
         }
 
+        /**
+         * Set a custom ID
+         */
         fun setCustomID(context: Context, custom_id: String) {
             MBAudienceManager.custom_id = custom_id
             MBAudienceManager.sendData(context)
         }
 
+        /**
+         * Clear custom ID
+         */
         fun removeCustomID(context: Context) {
             MBAudienceManager.custom_id = null
             MBAudienceManager.sendData(context)
         }
 
+        /**
+         * Get CustomID set previously, or return null
+         */
         fun getCustomID(): String? {
             return MBAudienceManager.custom_id
         }
 
+        /**
+         * Set the user_id connected with Auth MBurger
+         */
         fun setMobileUserId(context: Context, mobile_user_id: String) {
             MBAudienceManager.mobile_user_id = mobile_user_id
             MBAudienceManager.sendData(context)
         }
 
+        /**
+         * Clear the user_id connected with Auth MBurger
+         */
         fun removeMobileUserId(context: Context) {
             MBAudienceManager.mobile_user_id = null
             MBAudienceManager.sendData(context)
         }
 
+        /**
+         * Get the current mobile_user_id
+         */
         fun getMobileUserId(): String? {
             return MBAudienceManager.mobile_user_id
         }
 
+        /**
+         * Set session time from foreground to background
+         */
         fun setSessionTime(context: Context, sessionTime: Long) {
             MBAudienceManager.setSessionTime(context, sessionTime)
         }
 
+        /**
+         * Set user position (needs permission)
+         */
         fun setPosition(context: Context, latitude: Double, longitude: Double) {
             MBAudienceManager.setPosition(context, latitude, longitude)
         }
 
+        /**
+         * Add/update a single tag
+         */
         fun addTag(context: Context, key: String, value: String) {
             if (MBAudienceManager.userTags == null) {
                 MBAudienceManager.userTags = ArrayList()
@@ -113,6 +152,9 @@ class MBAudience : MBPlugin() {
             MBAudienceManager.sendData(context)
         }
 
+        /**
+         * Add/update an array of tags
+         */
         fun addTags(context: Context, tags: ArrayList<MBTag>) {
             if (MBAudienceManager.userTags == null) {
                 MBAudienceManager.userTags = ArrayList()
@@ -139,6 +181,9 @@ class MBAudience : MBPlugin() {
             MBAudienceManager.sendData(context)
         }
 
+        /**
+         * Remove a tag given the key
+         */
         fun removeTag(context: Context, key: String) {
             if (MBAudienceManager.userTags != null) {
                 val tags = MBAudienceManager.userTags!!
@@ -154,11 +199,17 @@ class MBAudience : MBPlugin() {
             MBAudienceManager.sendData(context)
         }
 
+        /**
+         * Remove all tags
+         */
         fun clearTags(context: Context) {
             MBAudienceManager.userTags = null
             MBAudienceManager.sendData(context)
         }
 
+        /**
+         * Start location updates request, is killed when app goes background
+         */
         fun startLocationUpdates(context: Context) {
             if ((locationCallback == null) || (locationClient == null)) {
                 locationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -195,6 +246,9 @@ class MBAudience : MBPlugin() {
             }
         }
 
+        /**
+         * Stop location updates
+         */
         fun stopLocationUpdates() {
             locationClient?.removeLocationUpdates(locationCallback)
             locationClient = null

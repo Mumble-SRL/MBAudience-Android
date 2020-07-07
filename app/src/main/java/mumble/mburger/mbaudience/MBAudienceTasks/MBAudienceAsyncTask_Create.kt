@@ -1,11 +1,8 @@
 package mumble.mburger.mbaudience.MBAudienceTasks
 
-import android.Manifest
 import android.content.ContentValues
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.AsyncTask
-import androidx.core.content.ContextCompat
 import mumble.mburger.mbaudience.MBAudienceConstants.MBAudienceConstants
 import mumble.mburger.mbaudience.MBAudienceData.MBTag
 import mumble.mburger.mbaudience.MBAudienceManager
@@ -13,6 +10,7 @@ import mumble.mburger.sdk.kt.Common.MBApiManager.MBAPIManager4
 import mumble.mburger.sdk.kt.Common.MBApiManager.MBApiManagerConfig
 import mumble.mburger.sdk.kt.Common.MBApiManager.MBApiManagerUtils
 import mumble.mburger.sdk.kt.Common.MBCommonMethods
+import org.apache.commons.text.StringEscapeUtils
 import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.ref.WeakReference
@@ -83,50 +81,98 @@ internal class MBAudienceAsyncTask_Create : AsyncTask<Void, Void, Void> {
     }
 
     fun putValuesAndCall() {
-        val app_version = weakContext.get()!!.packageManager
-                .getPackageInfo(weakContext.get()!!.packageName, 0).versionCode.toString()
-
-        val values = ContentValues()
-        values.put("device_id", MBCommonMethods.getDeviceId(weakContext.get()!!))
-        values.put("platform", "android")
-        values.put("push_enabled", push_enabled.toString())
-        values.put("location_enabled", MBAudienceManager.isLocationPermissionTaken(weakContext.get()!!).toString())
-        values.put("locale", Locale.getDefault().language)
-        values.put("app_version", app_version)
-        values.put("sessions", MBAudienceManager.getSessions(weakContext.get()!!).toString())
-        values.put("sessions_time", sessions_time.toString())
-        values.put("last_session", MBAudienceManager.getLastSession(weakContext.get()!!).toString())
-
-        if (mobile_user_id != null) {
-            values.put("mobile_user_id", mobile_user_id.toString())
+        val device_id = MBCommonMethods.getDeviceId(weakContext.get()!!)
+        val platform = "android"
+        val sPush_enabled = push_enabled.toString()
+        val locationPermission = MBAudienceManager.isLocationPermissionTaken(weakContext.get()!!).toString()
+        val locale = Locale.getDefault().language
+        val app_version = weakContext.get()!!.packageManager.getPackageInfo(weakContext.get()!!.packageName, 0).versionCode.toString()
+        val nSessions = MBAudienceManager.getSessions(weakContext.get()!!).toString()
+        val sSession_time = if (sessions_time == -1L) {
+            "0"
+        } else {
+            sessions_time.toString()
         }
 
-        if ((latitude != (-1).toDouble()) && (longitude != (-1).toDouble())) {
-            values.put("latitude", latitude.toString())
-            values.put("longitude", longitude.toString())
-        }
+        val last_session = MBAudienceManager.getLastSession(weakContext.get()!!).toString()
 
-        if (custom_id != null) {
-            values.put("custom_id", custom_id.toString())
-        }
+        if (!tags.isNullOrEmpty()) {
+            val builder = StringBuilder("{")
+            builder.append("\"device_id\":\"$device_id\",")
+            builder.append("\"platform\":\"$platform\",")
+            builder.append("\"push_enabled\":\"$sPush_enabled\",")
+            builder.append("\"location_enabled\":\"$locationPermission\",")
+            builder.append("\"locale\":\"$locale\",")
+            builder.append("\"app_version\":\"$app_version\",")
+            builder.append("\"sessions\":\"$nSessions\",")
+            builder.append("\"sessions_time\":\"$sSession_time\",")
+            builder.append("\"last_session\":\"$last_session\"")
 
-        if (tags != null) {
-            values.put("tags", formatTags())
-        }
+            if (mobile_user_id != null) {
+                val escaped_mobile_user_id = StringEscapeUtils.escapeJson(mobile_user_id)
 
-        map = MBAPIManager4.callApi(weakContext.get()!!, MBAudienceConstants.API_CREATE_DEVICE, values,
-                MBApiManagerConfig.MODE_POST, false, false)
+                builder.append(",")
+                builder.append("\"mobile_user_id\":\"$escaped_mobile_user_id\"")
+            }
+
+            if ((latitude != (-1).toDouble()) && (longitude != (-1).toDouble())) {
+                builder.append(",")
+                builder.append("\"latitude\":\"$latitude\",")
+                builder.append("\"longitude\":\"$longitude\"")
+            }
+
+            if (custom_id != null) {
+                val escaped_custom_id = StringEscapeUtils.escapeJson(custom_id)
+
+                builder.append(",")
+                builder.append("\"custom_id\":\"$escaped_custom_id\"")
+            }
+
+            builder.append(",\"tags\": ${formatTags()}")
+
+            builder.append("}")
+
+            map = MBAPIManager4.callApi(weakContext.get()!!, MBAudienceConstants.API_CREATE_DEVICE, ContentValues(),
+                    MBApiManagerConfig.MODE_POST, false, false, dataString = builder.toString())
+        } else {
+            val values = ContentValues()
+            values.put("device_id", device_id)
+            values.put("platform", "android")
+            values.put("push_enabled", sPush_enabled)
+            values.put("location_enabled", locationPermission)
+            values.put("locale", locale)
+            values.put("app_version", app_version)
+            values.put("sessions", nSessions)
+            values.put("sessions_time", sSession_time)
+            values.put("last_session", last_session)
+
+            if (mobile_user_id != null) {
+                values.put("mobile_user_id", mobile_user_id.toString())
+            }
+
+            if ((latitude != (-1).toDouble()) && (longitude != (-1).toDouble())) {
+                values.put("latitude", latitude.toString())
+                values.put("longitude", longitude.toString())
+            }
+
+            if (custom_id != null) {
+                values.put("custom_id", custom_id.toString())
+            }
+
+            map = MBAPIManager4.callApi(weakContext.get()!!, MBAudienceConstants.API_CREATE_DEVICE, values,
+                    MBApiManagerConfig.MODE_POST, false, false)
+        }
     }
 
-    fun formatTags(): String {
+    fun formatTags(): JSONArray {
         val jArr = JSONArray()
         for (tag in tags!!) {
             val jObj = JSONObject()
-            jObj.put("key", tag.key)
-            jObj.put("value", tag.value)
+            jObj.put("tag", StringEscapeUtils.escapeJson(tag.key))
+            jObj.put("value", StringEscapeUtils.escapeJson(tag.value))
             jArr.put(jObj)
         }
 
-        return jArr.toString()
+        return jArr
     }
 }

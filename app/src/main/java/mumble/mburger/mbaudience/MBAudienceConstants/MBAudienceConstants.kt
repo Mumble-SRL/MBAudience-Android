@@ -1,6 +1,6 @@
 package mumble.mburger.mbaudience.MBAudienceConstants
 
-object MBAudienceConstants {
+internal object MBAudienceConstants {
 
     internal const val API_CREATE_DEVICE = "/api/devices"
     internal const val API_ADD_LOCATION = "/api/locations"
