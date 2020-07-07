@@ -15,13 +15,13 @@ maven { url "https://dl.bintray.com/mumbleideas/MBurger-Android/" }
 Then add **MBurger Kotlin** dependency to your `app build.gradle` file:
 
 ```
-implementation 'mumble.mburger:android_kt:0.5.2'
+implementation 'mumble.mburger:android_kt:0.5.3'
 ```
 
 Lastly add `MBAudience` library:
 
 ```
-implementation 'mumble.mburger:mbaudience-android:0.2.6'
+implementation 'mumble.mburger:mbaudience-android:0.2.7'
 ```
 
 
