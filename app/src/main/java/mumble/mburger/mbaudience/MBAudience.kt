@@ -34,7 +34,10 @@ class MBAudience : MBPlugin() {
                 .addObserver(MBAudienceLifecycleListener(context))
 
         initialized = true
+        isAutomationConnected = false
         initListener?.onMBAudienceInitialized()
+        audienceTagChangedListener = null
+        locationAddedListener = null
     }
 
     /**
@@ -48,8 +51,13 @@ class MBAudience : MBPlugin() {
     }
 
     companion object {
+        var audienceTagChangedListener: MBAudienceTagChanged? = null
+        var locationAddedListener: MBAudienceLocationAdded? = null
+
         var locationClient: FusedLocationProviderClient? = null
         var locationCallback: LocationCallback? = null
+
+        var isAutomationConnected = false
 
         /**
          * Set the start date of the last session
@@ -124,6 +132,7 @@ class MBAudience : MBPlugin() {
          */
         fun setPosition(context: Context, latitude: Double, longitude: Double) {
             MBAudienceManager.setPosition(context, latitude, longitude)
+            locationAddedListener?.onMBLocationAdded(latitude, longitude)
         }
 
         /**
@@ -148,6 +157,8 @@ class MBAudience : MBPlugin() {
             if (!found) {
                 MBAudienceManager.userTags?.add(MBTag(key, value))
             }
+
+            audienceTagChangedListener?.onMBAudienceTagChanged(key, value)
 
             MBAudienceManager.sendData(context)
         }
@@ -175,6 +186,11 @@ class MBAudience : MBPlugin() {
                 if (!found) {
                     MBAudienceManager.userTags?.add(tag)
                 }
+            }
+
+            for (i in 0 until curTags.size) {
+                val curTag = curTags[i]
+                audienceTagChangedListener?.onMBAudienceTagChanged(curTag.key, curTag.value)
             }
 
             MBAudienceManager.userTags!!.addAll(tags)
@@ -234,6 +250,7 @@ class MBAudience : MBPlugin() {
 
                             if (mostAccurate != null) {
                                 MBAudienceManager.setPosition(context, mostAccurate.latitude, mostAccurate.longitude)
+                                locationAddedListener?.onMBLocationAdded(mostAccurate.latitude, mostAccurate.longitude)
                             }
                         }
                     }
