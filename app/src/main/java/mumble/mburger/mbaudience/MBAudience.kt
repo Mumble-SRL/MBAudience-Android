@@ -11,6 +11,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.android.gms.location.*
 import mumble.mburger.mbaudience.MBAudienceData.MBTag
 import mumble.mburger.sdk.kt.MBPlugins.MBPlugin
+import mumble.mburger.sdk.kt.MBPlugins.MBPluginsManager
 
 class MBAudience : MBPlugin() {
 
@@ -36,7 +37,6 @@ class MBAudience : MBPlugin() {
         initialized = true
         isAutomationConnected = false
         initListener?.onMBAudienceInitialized()
-        audienceTagChangedListener = null
         locationAddedListener = null
     }
 
@@ -51,7 +51,6 @@ class MBAudience : MBPlugin() {
     }
 
     companion object {
-        var audienceTagChangedListener: MBAudienceTagChanged? = null
         var locationAddedListener: MBAudienceLocationAdded? = null
 
         var locationClient: FusedLocationProviderClient? = null
@@ -158,8 +157,7 @@ class MBAudience : MBPlugin() {
                 MBAudienceManager.userTags?.add(MBTag(key, value))
             }
 
-            audienceTagChangedListener?.onMBAudienceTagChanged(key, value)
-
+            MBPluginsManager.tagChanged(key, value)
             MBAudienceManager.sendData(context)
         }
 
@@ -190,7 +188,7 @@ class MBAudience : MBPlugin() {
 
             for (i in 0 until curTags.size) {
                 val curTag = curTags[i]
-                audienceTagChangedListener?.onMBAudienceTagChanged(curTag.key, curTag.value)
+                MBPluginsManager.tagChanged(curTag.key, curTag.value)
             }
 
             MBAudienceManager.userTags!!.addAll(tags)
@@ -212,6 +210,7 @@ class MBAudience : MBPlugin() {
                 }
             }
 
+            MBPluginsManager.tagRemoved(key)
             MBAudienceManager.sendData(context)
         }
 
@@ -219,6 +218,14 @@ class MBAudience : MBPlugin() {
          * Remove all tags
          */
         fun clearTags(context: Context) {
+            if (MBAudienceManager.userTags != null) {
+                val tags = MBAudienceManager.userTags!!
+                for (i in 0 until tags.size) {
+                    val tag = tags[i]
+                    MBPluginsManager.tagRemoved(tag.key)
+                }
+            }
+
             MBAudienceManager.userTags = null
             MBAudienceManager.sendData(context)
         }
