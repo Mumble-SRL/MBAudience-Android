@@ -37,12 +37,18 @@ internal class MBAudienceManager {
         }
 
         /**SEND DATA**/
-        fun sendData(context: Context) {
+        fun sendData(context: Context, t_latitude: Double = -1.0, t_longitude: Double = -1.0) {
             if (initialized) {
                 MBAudienceAsyncTask_Create(context, push_enabled, mobile_user_id, custom_id,
                         latitude = userLatitude, longitude = userLongitude, tags = userTags).execute()
 
                 saveData(context)
+            } else {
+                val t_mobile_user_id = MBCommonMethods.getSharedPreferences(context)!!.getString("mobile_user_id", null)
+                val t_custom_id = MBCommonMethods.getSharedPreferences(context)!!.getString("custom_id", null)
+                val t_userTags = deJsonizeTags(context)
+                MBAudienceAsyncTask_Create(context, push_enabled, t_mobile_user_id, t_custom_id,
+                        latitude = t_latitude, longitude = t_longitude, tags = t_userTags).execute()
             }
         }
 
@@ -88,6 +94,8 @@ internal class MBAudienceManager {
                 this.userLongitude = longitude
                 sendData(context)
                 sendPositionData(context)
+            } else {
+                MBAudienceAsyncTask_AddLocation(context, latitude, longitude).execute()
             }
         }
 
